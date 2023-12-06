@@ -36,5 +36,12 @@ public class MouseDraw : MonoBehaviour
         {
             points.Clear();
         }
+        else if(Input.GetMouseButton(1))
+        {
+            Vector2 currentPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            line.
+        }
+
     }
 }
