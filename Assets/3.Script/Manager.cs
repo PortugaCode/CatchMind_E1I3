@@ -45,7 +45,7 @@ public class Manager : MonoBehaviour
         SetControll();
         foreach (GameObject g in control)
         {
-            if (!g.GetComponent<NetworkIdentity>().isLocalPlayer)
+            if (!g.GetComponent<NetworkIdentity>().isLocalPlayer) //나중에 여기다가 누가 권한을 가지고 있는가 추가
             {
                 img.texture = g.GetComponent<RPCControl>().white;
             }
