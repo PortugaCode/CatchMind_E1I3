@@ -1,0 +1,37 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class LoginSystem : MonoBehaviour
+{
+    public InputField idInput;
+    public InputField passInput;
+
+    [SerializeField] private Text log;
+
+    public void LoginBotton()
+    {
+        if(idInput.text.Equals(string.Empty) || passInput.text.Equals(string.Empty))
+        {
+            log.text = "아이디 비밀번호를 입력하세요.";
+            return;
+        }
+        if (SQL_Manager.instance.Login(idInput.text, passInput.text))
+        {
+            //로그인 성공
+
+            userInfo info = SQL_Manager.instance.info;
+            Debug.Log(info.userName + " | " + info.userPassword);
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            //로그인 실패
+            Debug.Log("아이디 비밀번호를 확인해 주세요..");
+        }
+
+
+    }
+
+}

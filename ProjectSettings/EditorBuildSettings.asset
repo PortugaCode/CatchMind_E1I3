@@ -6,6 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/1.Scene/Junggeun/CatchMind_Main.unity
-    guid: 2180fcfc232756a4d9904e1bf560b021
+
+    path: Assets/1.Scene/Sujin/SignUp.unity
+    guid: 3c6d6d2758caf6e469a49004d553e325
+  - enabled: 1
+    path: Assets/1.Scene/Sujin/Login.unity
+    guid: 4081c7027a4209d4199059f62bfed5c5
+
   m_configObjects: {}
