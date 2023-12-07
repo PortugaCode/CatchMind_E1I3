@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class LoginSystem : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class LoginSystem : MonoBehaviour
 
             userInfo info = SQL_Manager.instance.info;
             Debug.Log(info.userName + " | " + info.userPassword);
-            gameObject.SetActive(false);
+            SceneManager.LoadScene("CatchMind_Main");
         }
         else
         {
