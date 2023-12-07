@@ -22,8 +22,8 @@ public class LoginSystem : MonoBehaviour
         {
             //로그인 성공
 
-            userInfo info = SQL_Manager.instance.info;
-            Debug.Log(info.userName + " | " + info.userPassword);
+            /*userInfo info = SQL_Manager.instance.info;
+            Debug.Log(info.userName + " | " + info.userPassword);*/ //Login Debug
             SceneManager.LoadScene("CatchMind_Main");
         }
         else
@@ -34,5 +34,7 @@ public class LoginSystem : MonoBehaviour
 
 
     }
+
+   
 
 }

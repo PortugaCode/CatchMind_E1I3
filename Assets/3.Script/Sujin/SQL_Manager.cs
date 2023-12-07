@@ -146,6 +146,8 @@ public class SQL_Manager : MonoBehaviour
             return false;
         }
     }
+   
+   
 
     public bool signUp(string id, string password)
     {
@@ -156,13 +158,30 @@ public class SQL_Manager : MonoBehaviour
             {
                 return false;
             }
+
+
+            // 아이디 중복 확인
+            string checkDuplicateSQL =
+                string.Format("SELECT COUNT(*) FROM `catchmind` WHERE `ID` = '{0}'", id);
+            MySqlCommand checkDuplicateCmd = new MySqlCommand(checkDuplicateSQL, connection);
+
+            // 중복된 아이디가 이미 존재하는지 확인
+            int count = Convert.ToInt32(checkDuplicateCmd.ExecuteScalar());
+            if (count > 0)
+            {
+                
+                Debug.Log("이미 존재하는 아이디입니다.");
+                return false;
+            }
+
+            //회원가입
             string SQLCommand =
                   string.Format(@"INSERT INTO `catchmind`(`ID`, `Password`) VALUE 
                                 ('{0}','{1}');",
                                 id, password);
             MySqlCommand cmd = new MySqlCommand(SQLCommand, connection);
 
-            cmd.ExecuteNonQuery();
+            cmd.ExecuteNonQuery();  //MySql 실행
 
             return true;
         }
@@ -173,4 +192,6 @@ public class SQL_Manager : MonoBehaviour
             return false;
         }
     }
+
+    
 }
