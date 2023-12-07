@@ -21,7 +21,7 @@ public class WordManager : MonoBehaviour
 
     private string path;
 
-    private void Start()
+    private void Awake()
     {
         path = Path.Combine(Application.dataPath + "/Resources/Word/", "words.json");
 
@@ -32,8 +32,6 @@ public class WordManager : MonoBehaviour
         }
 
         LoadJsonFile();
-
-        Debug.Log(GetRandomWord());
     }
 
     private void SetDictionary()
