@@ -4,15 +4,38 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance = null;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     [Header("Round Setting")]
-    private float timer;
+    public float timer;
     public int roundCount = 5;
     public float roundTime = 30.0f;
+
+    // status
+    public bool isTimerOn = false;
+
+    private void Start()
+    {
+        //StartTimer();
+    }
 
     private void StartTimer()
     {
         if (timer == 0)
         {
+            isTimerOn = true;
             timer = roundTime;
             StartCoroutine(Timer_co());
         }
@@ -27,6 +50,7 @@ public class GameManager : MonoBehaviour
         }
 
         timer = 0;
+        isTimerOn = false;
         yield break;
     }
 }
