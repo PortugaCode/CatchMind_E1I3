@@ -639,7 +639,14 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Collab: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -653,11 +660,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 0
-  cloudProjectId: 0661e756-9fc1-41d9-bcb4-5217b9828813
+  cloudProjectId: 73268bc1-4a22-4002-907a-b4f690afd936
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: CatchMind_E1I3
-  organizationId: portuga123
+  organizationId: jinwon0707
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   virtualTexturingSupportEnabled: 0

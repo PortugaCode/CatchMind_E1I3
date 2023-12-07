@@ -1,7 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
+using Mirror;
+
+public enum PlayerName
+{
+    오중근 = 0,
+    박수진,
+    김진원,
+    이동길
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -33,15 +43,79 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject wordManager;
     public string currentWord;
 
+    [Header("Clients")]
+    public List<GameObject> control = new List<GameObject>();
+
+    [Header("UI")]
+    [SerializeField] private GameObject uiManager;
+
     public event Action OnRoundChanged;
 
     private void Start()
     {
-        StartRound();
+        StartCoroutine(Update_co());
     }
 
-    private void StartRound()
+    private IEnumerator Update_co()
     {
+        while (true)
+        {
+            Sync();
+            yield return null;
+        }
+    }
+
+    private void Sync()
+    {
+        SetControll();
+
+        foreach (GameObject g in control)
+        {
+            if (g.GetComponent<CanDrawControl>().isCanDraw) //나중에 여기다가 누가 권한을 가지고 있는가 추가
+            {
+                uiManager.GetComponent<UIManager>().SyncTexture(g.GetComponent<RPCControl>().white);
+            }
+        }
+    }
+
+    private void SetControll()
+    {
+        if (control.Count > 0)
+        {
+            GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
+
+            for (int i = 0; i < games.Length; i++)
+            {
+                uiManager.GetComponent<UIManager>().Changename(i, $"임시{i}");
+
+                if (control.Count < games.Length)
+                {
+                    if (i == games.Length - 1)
+                    {
+                        control.Add(games[i]);
+                    }
+                }
+            }
+        }
+        else
+        {
+            GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
+            foreach (GameObject g in games)
+            {
+                control.Add(g);
+                uiManager.GetComponent<UIManager>().Changename(0, "임시0");
+            }
+        }
+    }
+
+    public void StartRound()
+    {
+        GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject g in games)
+        {
+            g.GetComponent<RPCControl>().TurnOff();
+        }
+
         if (isCorrect == true) // isCorrect 변수 초기화
         {
             isCorrect = false;
@@ -49,12 +123,8 @@ public class GameManager : MonoBehaviour
 
         currentRound += 1;
 
-        // 그림을 그릴 사람 선정, 권한 부여
-
         // 제시어 뽑기
         currentWord = wordManager.GetComponent<WordManager>().GetRandomWord();
-
-        // 그림을 그릴 사람(권한이 있는사람)에게만 제시어 보여주기
 
         OnRoundChanged?.Invoke();
 

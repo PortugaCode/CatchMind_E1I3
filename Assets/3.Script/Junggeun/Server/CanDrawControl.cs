@@ -9,10 +9,11 @@ public class CanDrawControl : NetworkBehaviour
     [SyncVar(hook = nameof(onCanDrawChanged))]
     public bool isCanDraw;
 
+    [Header("UI")]
     [SerializeField] GameObject img;
     [SerializeField] GameObject panel;
-
-
+    [SerializeField] GameObject word;
+    
 
     private void Start()
     {
@@ -33,6 +34,7 @@ public class CanDrawControl : NetworkBehaviour
         {
             img.SetActive(!isCanDraw);
             panel.SetActive(isCanDraw);
+            word.SetActive(isCanDraw);
         }
     }
 
@@ -53,7 +55,11 @@ public class CanDrawControl : NetworkBehaviour
         {
             panel = GameObject.FindGameObjectWithTag("Respawn").transform.GetChild(0).gameObject;
         }
-
+        if (word == null)
+        {
+            word = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+        }
+        
     }
 
     [Command]

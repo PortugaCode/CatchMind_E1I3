@@ -15,6 +15,8 @@ public class RPCControl : NetworkBehaviour
 
     Drawable drawable;
 
+    [Header("UI")]
+    [SerializeField] GameObject startButton;
 
     private void onTextureChanged(Texture2D _old, Texture2D _new)
     {
@@ -33,7 +35,6 @@ public class RPCControl : NetworkBehaviour
     //Client가 Server에 Connect 되었을 때 Callback함수
     public override void OnStartAuthority()
     {
-
         //if (isLocalPlayer)
         //{
         //    canvas = GameObject.FindGameObjectWithTag("Canvas");
@@ -53,5 +54,28 @@ public class RPCControl : NetworkBehaviour
     {
         Debug.Log("Draw");
         white = t;
+    }
+
+    [Client]
+    public void TurnOff()
+    {
+        TurnOffButton();
+    }
+
+    [Command]
+    private void TurnOffButton()
+    {
+        TurnOffButtonUI();
+    }
+
+    [ClientRpc]
+    private void TurnOffButtonUI()
+    {
+        if (startButton == null)
+        {
+            startButton = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(5).gameObject;
+        }
+
+        startButton.SetActive(false);
     }
 }
