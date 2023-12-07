@@ -15,7 +15,6 @@ public class RPCControl : NetworkBehaviour
 
     Drawable drawable;
 
-    //Client가 Server에 Connect 되었을 때 Callback함수
 
     private void onTextureChanged(Texture2D _old, Texture2D _new)
     {
@@ -31,15 +30,16 @@ public class RPCControl : NetworkBehaviour
         drawable.App(white);*/
     }
 
+    //Client가 Server에 Connect 되었을 때 Callback함수
     public override void OnStartAuthority()
     {
+
         //if (isLocalPlayer)
         //{
         //    canvas = GameObject.FindGameObjectWithTag("Canvas");
         //}
 
         //drawable = FindObjectOfType<Drawable>();
-        
     }
 
     public void Draw_2(Texture2D t)

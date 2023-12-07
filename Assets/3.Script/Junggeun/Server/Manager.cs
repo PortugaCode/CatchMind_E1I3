@@ -37,16 +37,20 @@ public class Manager : MonoBehaviour
         if(control.Count>0)
         {
             GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
-            for(int i=0;i< games.Length;i++)
+            for(int i=0;i < games.Length;i++)
             {
-                if(i>=control.Count)
+                if(Player[i].text == "User_Name")
                 {
-                    control.Add(games[i]);
                     pname = (PlayerName)i;
                     Changename(i, pname.ToString());
                 }
-               if (games[i].Equals(control[i])) continue;
-
+                if (control.Count < games.Length)
+                {
+                    if (i == games.Length - 1)
+                    {
+                        control.Add(games[i]);
+                    }
+                }
             }
         }
         else
@@ -60,12 +64,16 @@ public class Manager : MonoBehaviour
             }
         }
     }
+
+    // !g.GetComponent<NetworkIdentity>().isLocalPlayer == 내가 아니라면
+    // g가 그릴 권한이 있는 사람이라면
+
     void Sync()
     {
         SetControll();
         foreach (GameObject g in control)
         {
-            if (!g.GetComponent<NetworkIdentity>().isLocalPlayer) //나중에 여기다가 누가 권한을 가지고 있는가 추가
+            if (g.GetComponent<CanDrawControl>().isCanDraw) //나중에 여기다가 누가 권한을 가지고 있는가 추가
             {
                 img.texture = g.GetComponent<RPCControl>().white;
             }
@@ -79,6 +87,7 @@ public class Manager : MonoBehaviour
             yield return null;
         }
     }
+
 
     private void Changename(int index, string str)
     {
