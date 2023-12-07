@@ -16,8 +16,6 @@ public class CanDrawControl : NetworkBehaviour
 
     private void Start()
     {
-        //img = GameObject.FindGameObjectWithTag("Finish");
-        //panel = GameObject.FindGameObjectWithTag("Respawn");
         GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
         if (a.Length <= 1)
         {
@@ -31,19 +29,20 @@ public class CanDrawControl : NetworkBehaviour
 
     private void Update()
     {
-        img.SetActive(!isCanDraw);
-        panel.SetActive(isCanDraw);
+        if (isLocalPlayer)
+        {
+            img.SetActive(!isCanDraw);
+            panel.SetActive(isCanDraw);
+        }
     }
 
     private void onCanDrawChanged(bool _old, bool _new)
     {
-        Debug.Log($"{_new}");
         isCanDraw = _new;
     }
 
     public void ChangeCanDraw2(bool t)
     {
-        //Debug.Log($"ChangeCanDraw2{t}");
         ChangeCanDraw(t);
         
         if (img == null)
@@ -55,14 +54,11 @@ public class CanDrawControl : NetworkBehaviour
             panel = GameObject.FindGameObjectWithTag("Respawn").transform.GetChild(0).gameObject;
         }
 
-        //Debug.Log($"Change Can Draw2 에서는 {isCanDraw}");
-
     }
 
     [Command]
     public void ChangeCanDraw(bool t)
     {
         isCanDraw = t;
-        //Debug.Log($"Change Can Draw 에서는 {isCanDraw}");
     }
 }
