@@ -22,17 +22,19 @@ public class LoginSystem : MonoBehaviour
         {
             //로그인 성공
 
-            userInfo info = SQL_Manager.instance.info;
-            Debug.Log(info.userName + " | " + info.userPassword);
+            /*userInfo info = SQL_Manager.instance.info;
+            Debug.Log(info.userName + " | " + info.userPassword);*/ //Login Debug
             SceneManager.LoadScene("CatchMind_Main");
         }
         else
         {
             //로그인 실패
-            Debug.Log("아이디 비밀번호를 확인해 주세요..");
+            log.text = "아이디 비밀번호를 확인해주세요..";
         }
 
 
     }
+
+   
 
 }
