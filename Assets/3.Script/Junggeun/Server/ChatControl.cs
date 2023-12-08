@@ -29,19 +29,15 @@ public class ChatControl : NetworkBehaviour
         pname = (PlayerName)mynum;
     }
 
-
-
     public override void OnStartAuthority()
     {
         if(isLocalPlayer)
         {
-            Debug.Log("자기 캔버스 켜짐");
             canvas.SetActive(true);
         }
 
         onMessage += NewMessage;
     }
-
     private void NewMessage(string obj)
     {
         chatCount++;
@@ -65,12 +61,27 @@ public class ChatControl : NetworkBehaviour
     [Client] //Client 입장 (Server에게 RPC 요청)
     public void Send()
     {
+        if (isLocalPlayer && GetComponent<CanDrawControl>().isCanDraw) return;
         if (!Input.GetKeyDown(KeyCode.Return)) return;
         if (string.IsNullOrWhiteSpace(inputField.text)) return;
 
         //서버에게 RPC 요청 메서드
         CMDSendMessage(inputField.text);
+
+        // 정답 판정
+        if (inputField.text.Equals(GameManager.instance.currentWord))
+        {
+            GetComponent<RPCControl>().score += 1;
+            GetComponent<RPCControl>().CorrectAnswer(gameObject);
+        }
+
         inputField.text = string.Empty;
+    }
+
+    [Client]
+    public void SendAnswer()
+    {
+        CMDSendMessage($"OOO님 정답 (제시어 : {GameManager.instance.currentWord})");
     }
 
     [ClientCallback] //Client가 Server를 나갔을 때
@@ -79,10 +90,6 @@ public class ChatControl : NetworkBehaviour
         if (!isLocalPlayer) return;
         onMessage -= NewMessage;
     }
-
-
-
-
 
     [Command] //Server 입장 (Server에서 다른 Client에게 뿌리는 작업)
     private void CMDSendMessage(string me)
@@ -97,6 +104,7 @@ public class ChatControl : NetworkBehaviour
         onMessage?.Invoke($"\n{me}");
         RoundText.Add(me);
     }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))

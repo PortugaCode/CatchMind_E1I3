@@ -13,7 +13,6 @@ public class CanDrawControl : NetworkBehaviour
     [SerializeField] GameObject img;
     [SerializeField] GameObject panel;
     [SerializeField] GameObject word;
-    
 
     private void Start()
     {
@@ -34,7 +33,11 @@ public class CanDrawControl : NetworkBehaviour
         {
             img.SetActive(!isCanDraw);
             panel.SetActive(isCanDraw);
-            word.SetActive(isCanDraw);
+
+            if (GameManager.instance.isGameStart)
+            {
+                word.SetActive(isCanDraw);
+            }
         }
     }
 
@@ -57,9 +60,8 @@ public class CanDrawControl : NetworkBehaviour
         }
         if (word == null)
         {
-            word = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+            word = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(3).gameObject;
         }
-        
     }
 
     [Command]
