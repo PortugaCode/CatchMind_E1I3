@@ -80,26 +80,27 @@ public class UIManager : MonoBehaviour
 
         int currentIndex = 0;
 
-        // 3명이 들어옴
+        int count = 0;
 
         while (currentIndex < gamess.Length)
         {
-            Debug.Log("While문 도는중 ");
+            count += 1;
 
             for (int i = 0; i < gamess.Length; i++)
             {
                 if (gamess[i].GetComponent<RPCControl>().index == currentIndex)
                 {
-                    Debug.Log("한번 할당함");
-
                     userNames_text[currentIndex].text = gamess[i].GetComponent<RPCControl>().userName;
                     userProfiles[currentIndex].SetActive(true);
                     currentIndex += 1;
                     break;
                 }
             }
+
+            if (count > 100)
+            {
+                return;
+            }
         }
-
-
     }
 }

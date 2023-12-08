@@ -44,6 +44,8 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject uiManager;
 
+    [SerializeField] GameObject drawable;
+
     [Header("Word")]
     public string currentWord;
 
@@ -61,6 +63,11 @@ public class GameManager : MonoBehaviour
         StartCoroutine(Update_co());
     }
 
+    private void Update()
+    {
+        SetControll();
+    }
+
     private IEnumerator Update_co()
     {
         while (true)
@@ -72,8 +79,6 @@ public class GameManager : MonoBehaviour
 
     private void Sync()
     {
-        SetControll();
-
         foreach (GameObject g in control)
         {
             if (g.GetComponent<CanDrawControl>().isCanDraw) //나중에 여기다가 누가 권한을 가지고 있는가 추가
@@ -88,6 +93,8 @@ public class GameManager : MonoBehaviour
         if (control.Count > 0)
         {
             GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
+
+            //Debug.Log($"control.Count = {control.Count} , games.Length = {games.Length}");
 
             for (int i = 0; i < games.Length; i++)
             {
@@ -123,6 +130,13 @@ public class GameManager : MonoBehaviour
         GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
         foreach (GameObject g in games)
         {
+            if (drawable == null)
+            {
+                drawable = GameObject.FindGameObjectWithTag("Respawn").transform.GetChild(0).gameObject;
+            }
+
+            drawable.GetComponent<Drawable>().Reset_W(true);
+
             g.GetComponent<RPCControl>().GameStart();
         }
     }
@@ -171,6 +185,17 @@ public class GameManager : MonoBehaviour
 
         timer = 0;
         isTimerOn = false;
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<CanDrawControl>().isCanDraw)
+            {
+                players[i].GetComponent<RPCControl>().TimeOver();
+            }
+        }
+
         yield break;
     }
 }

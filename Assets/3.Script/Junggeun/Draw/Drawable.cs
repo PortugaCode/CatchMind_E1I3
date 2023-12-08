@@ -80,7 +80,6 @@ public class Drawable : MonoBehaviour
         // {
         //     ResetCanvas();
         // }
-        Debug.Log("reset");
 
     }
 

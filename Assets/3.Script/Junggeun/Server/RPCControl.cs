@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
+using UnityEngine.SceneManagement;
 
 public class RPCControl : NetworkBehaviour
 {
@@ -19,6 +20,7 @@ public class RPCControl : NetworkBehaviour
     [SerializeField] GameObject startButton;
     [SerializeField] GameObject timerUI;
     [SerializeField] GameObject wordUI;
+    [SerializeField] GameObject resultUI;
 
     [Header("Word Manager")]
     [SerializeField] private GameObject wordManager;
@@ -32,6 +34,8 @@ public class RPCControl : NetworkBehaviour
     public int index = -1;
     [SyncVar(hook = nameof(onScoreChanged))]
     public int score = 0;
+
+    public bool isGameOver = true;
     //==============================
 
 
@@ -41,6 +45,16 @@ public class RPCControl : NetworkBehaviour
         NameChange(SQL_Manager.instance.info.userName);
     }
 
+    public override void OnStartClient()
+    {
+        //base.OnStartClient();
+        StartCoroutine(wait());
+    }
+
+
+
+
+    #region [플레이어 정보]
     private void onNameChanged(string _old, string _new)
     {
         userName = _new;
@@ -53,6 +67,7 @@ public class RPCControl : NetworkBehaviour
     private void onScoreChanged(int _old, int _new)
     {
         score = _new;
+        score -= 1;
     }
 
     public void NameChange(string name)
@@ -71,6 +86,8 @@ public class RPCControl : NetworkBehaviour
         ScoreChange_Command(score);
     }
 
+
+
     [Command]
     public void NameChange_Command(string name)
     {
@@ -86,16 +103,9 @@ public class RPCControl : NetworkBehaviour
     [Command]
     public void ScoreChange_Command(int C_score)
     {
-        score = C_score;
+        score += C_score;
     }
-
-
-
-
-
-
-
-
+    #endregion
 
     #region [텍스쳐 변경]
     private void onTextureChanged(Texture2D _old, Texture2D _new)
@@ -105,14 +115,12 @@ public class RPCControl : NetworkBehaviour
 
     public void Draw_2(Texture2D t)
     {
-        Debug.Log("Draw_2");
         Draw(t);
     }
 
     [Command]
     public void Draw(Texture2D t)
     {
-        Debug.Log("Draw");
         white = t;
     }
     #endregion
@@ -137,6 +145,23 @@ public class RPCControl : NetworkBehaviour
         if (GameManager.instance.isGameStart == false) // 첫 라운드의 경우
         {
             GameManager.instance.isGameStart = true;
+
+            GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+            for (int i = 0; i < a.Length; i++)
+            {
+                a[i].GetComponent<RPCControl>().isGameOver = false;
+            }
+
+            // 0. result UI 비활성화
+            if (resultUI == null)
+            {
+                resultUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(5).gameObject;
+            }
+            GetComponent<RPCControl>().resultUI.transform.GetChild(0).gameObject.SetActive(false);
+            GetComponent<RPCControl>().resultUI.transform.GetChild(1).gameObject.SetActive(false);
+
+            // score 초기화
+            GetComponent<RPCControl>().score = 0;
 
             // 1. 스타트 버튼 비활성화
             if (startButton == null)
@@ -223,6 +248,11 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void CorrectAnswer_RPC(GameObject pen) // 모든 클라이언트들에서 실행
     {
+        if (isGameOver)
+        {
+            return;
+        }
+
         // 1. 게임매니저에 알림 -> 진행중인 라운드 종료 (타이머 Off)
         GameManager.instance.isCorrect = true;
 
@@ -243,32 +273,146 @@ public class RPCControl : NetworkBehaviour
         {
             a[i].GetComponent<CanDrawControl>().ChangeCanDraw2(false);
         }
-        
+
         pen.GetComponent<CanDrawControl>().ChangeCanDraw2(true);
-        
-        if (pen.GetComponent<RPCControl>().score == 3)
-        {
-            // 게임 종료
-        }
+
+        Debug.Log($"isGameOver가 {isGameOver} 입니다!!");
 
         // 6. 다음 라운드 시작
-        GameManager.instance.PushStartButton();
+        if (isGameOver == false)
+        {
+            Debug.Log("다음 라운드 시작합니다");
+            GameManager.instance.PushStartButton();
+        }
     }
 
     #endregion
 
-    public override void OnStartClient()
-    {
-        //base.OnStartClient();
-        StartCoroutine(wait());
-    }
-/*
-    public override void OnStartLocalPlayer()
-    {
-        base.OnStartLocalPlayer();
+    #region [게임 종료]
 
-        StartCoroutine(wait());
-    }*/
+    [Client]
+    public void GameOver() // 클라이언트가 정답을 맞췄다고 알림
+    {
+        GameOver_Command();
+    }
+
+    [Command]
+    private void GameOver_Command() // 서버에서 커맨드
+    {
+        GameOver_RPC();
+    }
+
+    [ClientRpc]
+    private void GameOver_RPC() // 모든 클라이언트들에서 실행
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+        for(int i = 0; i< a.Length; i++)
+        {
+            a[i].GetComponent<RPCControl>().isGameOver = true;
+        }
+        //GetComponent<RPCControl>().isGameOver = true;
+
+        // 게임 종료
+        if (resultUI == null)
+        {
+            resultUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(5).gameObject;
+        }
+
+        // 1. 점수 1등인애는 Win 나머지 lose UI 띄우기
+        if (GetComponent<RPCControl>().score == 2)
+        {
+            // Win 띄워
+            resultUI.transform.GetChild(0).gameObject.SetActive(true);
+        }
+        else
+        {
+            // Lose 띄워
+            resultUI.transform.GetChild(1).gameObject.SetActive(true);
+        }
+
+        //Debug.Log($"{GetComponent<RPCControl>().userName}의  isGameOver : {isGameOver}");
+
+        // 2. isGameStart 초기화
+        GameManager.instance.isGameStart = false;
+
+        // 3. TimerUI 비활성화
+        if (timerUI == null)
+        {
+            timerUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(2).gameObject;
+        }
+        timerUI.SetActive(false);
+
+        // 4. StartButton 활성화
+        if (startButton == null)
+        {
+            startButton = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+        }
+        startButton.SetActive(true);
+    }
+
+    #endregion
+
+    #region [시간 초과]
+
+    [Client]
+    public void TimeOver() // 시간이 초과됨을 알림
+    {
+        TimeOver_Command();
+    }
+
+    [Command]
+    private void TimeOver_Command() // 서버에서 커맨드
+    {
+        TimeOver_RPC();
+    }
+
+    [ClientRpc]
+    private void TimeOver_RPC() // 모든 클라이언트들에서 실행
+    {
+        if (isGameOver)
+        {
+            return;
+        }
+
+        // 다 꺼 -> OK
+        GetComponent<CanDrawControl>().ChangeCanDraw2(false);
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<CanDrawControl>().isCanDraw)
+            {
+                int nextNum;
+
+                if (i == players.Length - 1)
+                {
+                    nextNum = 0;
+                }
+                else
+                {
+                    nextNum = i + 1;
+                }
+
+                players[nextNum].GetComponent<CanDrawControl>().ChangeCanDraw2(true);
+
+                if (isGameOver == false)
+                {
+                    Debug.Log("타임오버요");
+                    GameManager.instance.PushStartButton();
+                }
+
+                break;
+            }
+        }
+    }
+
+    #endregion
 
     private IEnumerator wait()
     {

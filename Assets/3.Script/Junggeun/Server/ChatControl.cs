@@ -19,14 +19,17 @@ public class ChatControl : NetworkBehaviour
     private List<string> chat_list = new List<string>();
     private int chatCount = 0;
     
-    private int mynum;
-    private PlayerName pname;
+    //private int mynum;
+    //private string pname;
 
     private void Awake()
     {
-        GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
-        mynum = a.Length - 1;
-        pname = (PlayerName)mynum;
+        //GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+        //mynum = a.Length - 1;
+        //if(isLocalPlayer)
+        //{
+        //    pname = a[mynum].GetComponent<RPCControl>().userName;
+        //}
     }
 
     public override void OnStartAuthority()
@@ -38,6 +41,8 @@ public class ChatControl : NetworkBehaviour
 
         onMessage += NewMessage;
     }
+
+
     private void NewMessage(string obj)
     {
         chatCount++;
@@ -71,8 +76,19 @@ public class ChatControl : NetworkBehaviour
         // 정답 판정
         if (inputField.text.Equals(GameManager.instance.currentWord))
         {
+            GetComponent<RPCControl>().ScoreChange(1);
             GetComponent<RPCControl>().score += 1;
-            GetComponent<RPCControl>().CorrectAnswer(gameObject);
+
+            Debug.Log(GetComponent<RPCControl>().score);
+
+            if (GetComponent<RPCControl>().score == 2)
+            {
+                GetComponent<RPCControl>().GameOver();
+            }
+            else
+            {
+                GetComponent<RPCControl>().CorrectAnswer(gameObject);
+            }
         }
 
         inputField.text = string.Empty;
@@ -81,7 +97,7 @@ public class ChatControl : NetworkBehaviour
     [Client]
     public void SendAnswer()
     {
-        CMDSendMessage($"OOO님 정답 (제시어 : {GameManager.instance.currentWord})");
+        CMDSendMessage($"정답 (제시어 : {GameManager.instance.currentWord})");
     }
 
     [ClientCallback] //Client가 Server를 나갔을 때
@@ -94,7 +110,7 @@ public class ChatControl : NetworkBehaviour
     [Command] //Server 입장 (Server에서 다른 Client에게 뿌리는 작업)
     private void CMDSendMessage(string me)
     {
-        RPCHandleMessage($"[{pname.ToString()}] : {me}");
+        RPCHandleMessage($"[{GetComponent<RPCControl>().userName}] : {me}");
         //RPCHandleMessage($"[{connectionToClient.connectionId}] : {me}");
     }
 
