@@ -5,15 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 
-public enum PlayerName
-{
-    오중근 = 0,
-    박수진,
-    김진원,
-    이동길
-}
-
-
 public class Manager : MonoBehaviour
 {
     public Text[] Player;
@@ -79,6 +70,7 @@ public class Manager : MonoBehaviour
             }
         }
     }
+
     IEnumerator Update_co()
     {
         while(true)
@@ -88,12 +80,10 @@ public class Manager : MonoBehaviour
         }
     }
 
-
     private void Changename(int index, string str)
     {
         Debug.Log("Changename!!");
         Player[index].text = str;
         pro[index].SetActive(true);
     }
-
 }
