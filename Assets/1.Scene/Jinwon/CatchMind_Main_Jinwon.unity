@@ -417,7 +417,7 @@ MonoBehaviour:
   DualMode: 1
   NoDelay: 1
   Interval: 10
-  Timeout: 10000
+  Timeout: 100000
   RecvBufferSize: 7361536
   SendBufferSize: 7361536
   FastResend: 2
@@ -3518,6 +3518,8 @@ MonoBehaviour:
   control: []
   uiManager: {fileID: 1494753378}
   currentWord: 
+  isGameStart: 0
+  userinfo: []
 --- !u!1 &3358203858524922891
 GameObject:
   m_ObjectHideFlags: 0

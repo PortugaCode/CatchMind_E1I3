@@ -52,6 +52,10 @@ public class GameManager : MonoBehaviour
 
     public event Action OnRoundChanged;
 
+    [Header("UserInfo")]
+    public List<string> userinfo = new List<string>();
+
+
     private void Start()
     {
         StartCoroutine(Update_co());
@@ -87,13 +91,13 @@ public class GameManager : MonoBehaviour
 
             for (int i = 0; i < games.Length; i++)
             {
-                uiManager.GetComponent<UIManager>().Changename(i, $"임시{i}");
-
                 if (control.Count < games.Length)
                 {
-                    if (i == games.Length - 1)
+                    if (i == games.Length - 1 && !games[i].GetComponent<RPCControl>().userName.Equals(string.Empty))
                     {
                         control.Add(games[i]);
+                        //uiManager.GetComponent<UIManager>().Changename(i, control[i].GetComponent<RPCControl>().userName);
+                        control[i].GetComponent<RPCControl>().IndexChanged(i);
                     }
                 }
             }
@@ -101,10 +105,15 @@ public class GameManager : MonoBehaviour
         else
         {
             GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
+
             foreach (GameObject g in games)
             {
-                control.Add(g);
-                uiManager.GetComponent<UIManager>().Changename(0, "임시0");
+                if (!g.GetComponent<RPCControl>().userName.Equals(string.Empty))
+                {
+                    control.Add(g);
+                    //uiManager.GetComponent<UIManager>().Changename(0, control[0].GetComponent<RPCControl>().userName);
+                    control[0].GetComponent<RPCControl>().IndexChanged(0);
+                }
             }
         }
     }

@@ -24,7 +24,7 @@ public class LoginSystem : MonoBehaviour
 
             /*userInfo info = SQL_Manager.instance.info;
             Debug.Log(info.userName + " | " + info.userPassword);*/ //Login Debug
-            SceneManager.LoadScene("CatchMind_Main");
+            SceneManager.LoadScene("CatchMind_Main_Jinwon");
         }
         else
         {

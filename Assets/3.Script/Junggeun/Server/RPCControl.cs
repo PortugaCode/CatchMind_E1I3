@@ -25,17 +25,82 @@ public class RPCControl : NetworkBehaviour
 
     public string currentWord;
 
+    //유저의 정보====================
+    [SyncVar(hook = nameof(onNameChanged))]
+    public string userName = string.Empty;
+    [SyncVar(hook = nameof(onIndexChanged))]
+    public int index = -1;
+    [SyncVar(hook = nameof(onScoreChanged))]
     public int score = 0;
+    //==============================
 
-    private void onTextureChanged(Texture2D _old, Texture2D _new)
-    {
-        white = _new;
-    }
 
     //Client가 Server에 Connect 되었을 때 Callback함수
     public override void OnStartAuthority()
     {
+        NameChange(SQL_Manager.instance.info.userName);
+    }
 
+    private void onNameChanged(string _old, string _new)
+    {
+        userName = _new;
+    }
+
+    private void onIndexChanged(int _old, int _new)
+    {
+        index = _new;
+    }
+    private void onScoreChanged(int _old, int _new)
+    {
+        score = _new;
+    }
+
+    public void NameChange(string name)
+    {
+        //메서드
+        NameChange_Command(name);
+    }
+
+    public void IndexChanged(int index)
+    {
+        IndexChanged_Command(index);
+    }
+
+    public void ScoreChange(int score)
+    {
+        ScoreChange_Command(score);
+    }
+
+    [Command]
+    public void NameChange_Command(string name)
+    {
+        userName = name;
+    }
+
+    [Command]
+    public void IndexChanged_Command(int C_index)
+    {
+        index = C_index;
+    }
+
+    [Command]
+    public void ScoreChange_Command(int C_score)
+    {
+        score = C_score;
+    }
+
+
+
+
+
+
+
+
+
+    #region [텍스쳐 변경]
+    private void onTextureChanged(Texture2D _old, Texture2D _new)
+    {
+        white = _new;
     }
 
     public void Draw_2(Texture2D t)
@@ -50,6 +115,7 @@ public class RPCControl : NetworkBehaviour
         Debug.Log("Draw");
         white = t;
     }
+    #endregion
 
     #region [게임 시작]
 
@@ -190,4 +256,27 @@ public class RPCControl : NetworkBehaviour
     }
 
     #endregion
+
+    public override void OnStartClient()
+    {
+        //base.OnStartClient();
+        StartCoroutine(wait());
+    }
+/*
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+
+        StartCoroutine(wait());
+    }*/
+
+    private IEnumerator wait()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        GameObject canvas = GameObject.FindGameObjectWithTag("Finish");
+        canvas.GetComponent<UIManager>().ChangeNameByIndex();
+
+        yield break;
+    }
 }

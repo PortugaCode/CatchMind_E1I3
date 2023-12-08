@@ -13,7 +13,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text[] userNames_text;
     [SerializeField] private GameObject[] userProfiles;
     [SerializeField] private RawImage img;
-    private PlayerName pname;
+    //private PlayerName pname;
+
+    private int playerCount = 0;
+
+    private bool isRealFinished = false;
 
     private void Start()
     {
@@ -26,6 +30,8 @@ public class UIManager : MonoBehaviour
         {
             UpdateTimerUI();
         }
+
+        //ChangeNameByIndex();
     }
 
     private void UpdateTimerUI()
@@ -43,5 +49,57 @@ public class UIManager : MonoBehaviour
     {
         userNames_text[index].text = str;
         userProfiles[index].SetActive(true);
+    }
+
+
+    //Update에서 돌고 있는 메서드
+    public void ChangeNameByIndex()
+    {
+        GameObject[] gamess = GameObject.FindGameObjectsWithTag("Player");
+
+        #region
+        /*for (int i = 0; i < gamess.Length; i++)
+        {
+            if (gamess[i].GetComponent<RPCControl>().index == -1 || gamess[i].GetComponent<RPCControl>().userName.Equals(string.Empty))
+            {
+                Debug.Log("인덱스 또는 이름이 아직 할당 안됐습니다. 리턴합니다");
+                return;
+            }
+        }*/
+
+        /*if (gamess.Length == playerCount || gamess.Length < GameManager.instance.control.Count)
+        {
+            Debug.Log($"인식된 플레이어 명 수 : {gamess.Length}입니다. 리턴합니다");
+            return;
+        }*/
+
+        //GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
+
+        //Debug.Log($"통과함, 인식된 플레이어 수 : {gamess.Length}");
+        #endregion
+
+        int currentIndex = 0;
+
+        // 3명이 들어옴
+
+        while (currentIndex < gamess.Length)
+        {
+            Debug.Log("While문 도는중 ");
+
+            for (int i = 0; i < gamess.Length; i++)
+            {
+                if (gamess[i].GetComponent<RPCControl>().index == currentIndex)
+                {
+                    Debug.Log("한번 할당함");
+
+                    userNames_text[currentIndex].text = gamess[i].GetComponent<RPCControl>().userName;
+                    userProfiles[currentIndex].SetActive(true);
+                    currentIndex += 1;
+                    break;
+                }
+            }
+        }
+
+
     }
 }
