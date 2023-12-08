@@ -29,7 +29,7 @@ public class LoginSystem : MonoBehaviour
         else
         {
             //로그인 실패
-            Debug.Log("아이디 비밀번호를 확인해 주세요..");
+            log.text = "아이디 비밀번호를 확인해주세요..";
         }
 
 

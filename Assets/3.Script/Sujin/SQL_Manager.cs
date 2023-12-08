@@ -6,6 +6,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.IO;
 using LitJson;
+using UnityEngine.UI;
 
 public class userInfo
 {
@@ -27,6 +28,8 @@ public class SQL_Manager : MonoBehaviour
     public MySqlDataReader dataReader;
 
     public string dbPath = string.Empty;
+
+    public Text log;
 
     public static SQL_Manager instance = null;
     public void Awake()
@@ -159,7 +162,6 @@ public class SQL_Manager : MonoBehaviour
                 return false;
             }
 
-
             // 아이디 중복 확인
             string checkDuplicateSQL =
                 string.Format("SELECT COUNT(*) FROM `catchmind` WHERE `ID` = '{0}'", id);
@@ -169,10 +171,11 @@ public class SQL_Manager : MonoBehaviour
             int count = Convert.ToInt32(checkDuplicateCmd.ExecuteScalar());
             if (count > 0)
             {
-                
+                log.text = "이미 존재하는 아이디입니다.";
                 Debug.Log("이미 존재하는 아이디입니다.");
                 return false;
             }
+
 
             //회원가입
             string SQLCommand =
