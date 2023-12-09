@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     public float timer;
     public int roundCount = 5;
     public float roundTime = 30.0f;
+    public int roundWinScore = 3;
 
     [Header("Status")]
     public bool isTimerOn = false;
@@ -51,6 +52,7 @@ public class GameManager : MonoBehaviour
 
     // Status
     public bool isGameStart = false;
+    public int localIndex = -1;
 
     public event Action OnRoundChanged;
 
@@ -139,6 +141,18 @@ public class GameManager : MonoBehaviour
 
             g.GetComponent<RPCControl>().GameStart();
         }
+    }
+
+    public void WaitForNextRound()
+    {
+        StartCoroutine(WaitForNextRound_co());
+    }
+
+    private IEnumerator WaitForNextRound_co()
+    {
+        yield return new WaitForSeconds(3.0f);
+
+        PushStartButton();
     }
 
     public void StartRound()

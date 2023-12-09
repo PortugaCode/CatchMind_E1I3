@@ -966,7 +966,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8650762817312583036}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 796.4695, y: 554.6269, z: -45.3084}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7334127243778517158}
@@ -1005,7 +1005,16 @@ MonoBehaviour:
   syncInterval: 0
   white: {fileID: 2800000, guid: 63dd4d4bfa399054c80140e6e63b3cca, type: 3}
   canvas: {fileID: 0}
-  isCanDraw: 0
+  startButton: {fileID: 0}
+  timerUI: {fileID: 0}
+  wordUI: {fileID: 0}
+  resultUI: {fileID: 0}
+  wordManager: {fileID: 0}
+  currentWord: 
+  userName: 
+  index: -1
+  score: 0
+  isGameOver: 1
 --- !u!114 &7698838751051543714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1054,3 +1063,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08c930ae99803c641b12203acf72bdae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  isCanDraw: 0
+  img: {fileID: 0}
+  panel: {fileID: 0}
+  word: {fileID: 0}

@@ -33,11 +33,6 @@ public class CanDrawControl : NetworkBehaviour
         {
             img.SetActive(!isCanDraw);
             panel.SetActive(isCanDraw);
-
-            if (GameManager.instance.isGameStart)
-            {
-                word.SetActive(isCanDraw);
-            }
         }
     }
 

@@ -24,17 +24,12 @@ public class LoginSystem : MonoBehaviour
 
             /*userInfo info = SQL_Manager.instance.info;
             Debug.Log(info.userName + " | " + info.userPassword);*/ //Login Debug
-            SceneManager.LoadScene("CatchMind_Main_Jinwon");
+            SceneManager.LoadScene("CatchMind_MainGame");
         }
         else
         {
             //로그인 실패
             log.text = "아이디 비밀번호를 확인해주세요..";
         }
-
-
     }
-
-   
-
 }

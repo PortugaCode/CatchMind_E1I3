@@ -21,6 +21,8 @@ public class RPCControl : NetworkBehaviour
     [SerializeField] GameObject timerUI;
     [SerializeField] GameObject wordUI;
     [SerializeField] GameObject resultUI;
+    [SerializeField] GameObject answerUI;
+    [SerializeField] GameObject drawUI;
 
     [Header("Word Manager")]
     [SerializeField] private GameObject wordManager;
@@ -38,22 +40,16 @@ public class RPCControl : NetworkBehaviour
     public bool isGameOver = true;
     //==============================
 
-
-    //Client가 Server에 Connect 되었을 때 Callback함수
-    public override void OnStartAuthority()
+    public override void OnStartAuthority() // 클라이언트 접속 시 userName 할당 (OnStartClient보다 먼저 호출됨)
     {
         NameChange(SQL_Manager.instance.info.userName);
     }
 
     public override void OnStartClient()
     {
-        //base.OnStartClient();
-        StartCoroutine(wait());
+        StartCoroutine(Wait_co());
     }
-
-
-
-
+    
     #region [플레이어 정보]
     private void onNameChanged(string _old, string _new)
     {
@@ -64,10 +60,34 @@ public class RPCControl : NetworkBehaviour
     {
         index = _new;
     }
+
     private void onScoreChanged(int _old, int _new)
     {
         score = _new;
-        score -= 1;
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        bool isLastRound = false;
+
+        foreach (GameObject player in players)
+        {
+            if (player.GetComponent<RPCControl>().score == GameManager.instance.roundWinScore)
+            {
+                isLastRound = true;
+            }
+        }
+
+        if (isLastRound)
+        {
+            GetComponent<RPCControl>().GameOver();
+        }
+        else
+        {
+            if (isLocalPlayer)
+            {
+                GetComponent<RPCControl>().CorrectAnswer(gameObject);
+            }
+        }
     }
 
     public void NameChange(string name)
@@ -86,8 +106,6 @@ public class RPCControl : NetworkBehaviour
         ScoreChange_Command(score);
     }
 
-
-
     [Command]
     public void NameChange_Command(string name)
     {
@@ -103,7 +121,7 @@ public class RPCControl : NetworkBehaviour
     [Command]
     public void ScoreChange_Command(int C_score)
     {
-        score += C_score;
+        score = C_score;
     }
     #endregion
 
@@ -142,14 +160,21 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void GameStart_RPC() // 모든 클라이언트들에서 실행
     {
+        GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+
+        if (answerUI == null)
+        {
+            answerUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(6).gameObject;
+        }
+
         if (GameManager.instance.isGameStart == false) // 첫 라운드의 경우
         {
             GameManager.instance.isGameStart = true;
 
-            GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
             for (int i = 0; i < a.Length; i++)
             {
                 a[i].GetComponent<RPCControl>().isGameOver = false;
+                a[i].GetComponent<RPCControl>().score = 0;
             }
 
             // 0. result UI 비활성화
@@ -159,9 +184,6 @@ public class RPCControl : NetworkBehaviour
             }
             GetComponent<RPCControl>().resultUI.transform.GetChild(0).gameObject.SetActive(false);
             GetComponent<RPCControl>().resultUI.transform.GetChild(1).gameObject.SetActive(false);
-
-            // score 초기화
-            GetComponent<RPCControl>().score = 0;
 
             // 1. 스타트 버튼 비활성화
             if (startButton == null)
@@ -178,7 +200,14 @@ public class RPCControl : NetworkBehaviour
             timerUI.SetActive(true);
         }
 
-        // 4. 제시어 뽑기 & Word (제시어) UI 활성화 - 그림을 그리는 사람만
+        // Answer UI 비활성화
+        answerUI.SetActive(false);
+
+        // 왕관 아이콘 변경
+        GameObject canvas = GameObject.FindGameObjectWithTag("Finish");
+        canvas.GetComponent<UIManager>().CrownIcon();
+
+        // 4. 제시어 뽑기 & Word (제시어) & 팔레트 활성화 - 그림을 그리는 사람만
         if (GetComponent<CanDrawControl>().isCanDraw)
         {
             if (wordUI == null)
@@ -191,6 +220,11 @@ public class RPCControl : NetworkBehaviour
                 wordManager = GameObject.FindGameObjectWithTag("WordManager");
             }
 
+            if (drawUI == null)
+            {
+                drawUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(7).gameObject;
+            }
+
             if (isLocalPlayer)
             {
                 string newWord = wordManager.GetComponent<WordManager>().GetRandomWord();
@@ -198,6 +232,7 @@ public class RPCControl : NetworkBehaviour
                 SendWord(newWord);
 
                 wordUI.SetActive(true);
+                drawUI.SetActive(true);
             }
         }
 
@@ -231,7 +266,7 @@ public class RPCControl : NetworkBehaviour
 
     #endregion
 
-    #region [정답 판정]
+    #region [정답 맞춘 경우]
 
     [Client]
     public void CorrectAnswer(GameObject pen) // 클라이언트가 정답을 맞췄다고 알림
@@ -253,36 +288,48 @@ public class RPCControl : NetworkBehaviour
             return;
         }
 
+        GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+
         // 1. 게임매니저에 알림 -> 진행중인 라운드 종료 (타이머 Off)
         GameManager.instance.isCorrect = true;
+
+        // 2. 제시어 UI 비활성화
+        if (wordUI == null)
+        {
+            wordUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(3).gameObject;
+        }
+        wordUI.SetActive(false);
+
+        // Draw UI 비활성화
+        if (drawUI == null)
+        {
+            drawUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(7).gameObject;
+        }
+        drawUI.SetActive(false);
 
         // 3. 점수 UI 업데이트
         // Canvas의 Users의 자기 위치의 scoreText 업데이트?...
 
         // 4. 해당 라운드의 제시어 모든 클라이언트에게 공개
+        if (answerUI == null)
+        {
+            answerUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(6).gameObject;
+        }
+        answerUI.transform.GetChild(1).GetComponent<Text>().text = $"{pen.GetComponent<RPCControl>().userName}님 정답! (제시어 : {GameManager.instance.currentWord})";
+        answerUI.SetActive(true);
         GameManager.instance.ShowCurrentWord(); // 시각적으로 표현
 
-        if (isLocalPlayer)
-        {
-            pen.GetComponent<ChatControl>().SendAnswer(); // 채팅창에 정답 라인 출력
-        }
-
         // 5. 정답을 맞힌 클라이언트에게 권한 할당
-        GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < a.Length; i++)
         {
             a[i].GetComponent<CanDrawControl>().ChangeCanDraw2(false);
         }
-
         pen.GetComponent<CanDrawControl>().ChangeCanDraw2(true);
-
-        Debug.Log($"isGameOver가 {isGameOver} 입니다!!");
 
         // 6. 다음 라운드 시작
         if (isGameOver == false)
         {
-            Debug.Log("다음 라운드 시작합니다");
-            GameManager.instance.PushStartButton();
+            GameManager.instance.WaitForNextRound();
         }
     }
 
@@ -305,37 +352,62 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void GameOver_RPC() // 모든 클라이언트들에서 실행
     {
+        // [모든 라운드 종료]
+
         if (isGameOver)
         {
             return;
         }
 
-        GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
-        for(int i = 0; i< a.Length; i++)
+        GameObject[] a = GameObject.FindGameObjectsWithTag("Player"); // 클라이언트들 찾아놓기
+
+        // 모든 클라이언트들의 isGameOver true로 바꾸기
+        for (int i = 0; i < a.Length; i++)
         {
             a[i].GetComponent<RPCControl>().isGameOver = true;
         }
-        //GetComponent<RPCControl>().isGameOver = true;
 
-        // 게임 종료
-        if (resultUI == null)
+        if (resultUI == null) // Result UI 찾아놓기
         {
             resultUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(5).gameObject;
         }
 
-        // 1. 점수 1등인애는 Win 나머지 lose UI 띄우기
-        if (GetComponent<RPCControl>().score == 2)
+        // 1. 점수 1등은 Win, 나머지 lose UI 띄우기
+        /*if (isLocalPlayer)
         {
-            // Win 띄워
-            resultUI.transform.GetChild(0).gameObject.SetActive(true);
+            if (GetComponent<RPCControl>().score == GameManager.instance.roundWinScore)
+            {
+                // Win 띄워
+                resultUI.transform.GetChild(0).gameObject.SetActive(true);
+            }
+            else
+            {
+                // Lose 띄워
+                resultUI.transform.GetChild(1).gameObject.SetActive(true);
+            }
+        }*/
+
+        // 제시어 UI 비활성화
+        if (wordUI == null)
+        {
+            wordUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(3).gameObject;
         }
-        else
+        wordUI.SetActive(false);
+
+        // 1. UI에 1등 이름 띄우기
+        if (answerUI == null)
         {
-            // Lose 띄워
-            resultUI.transform.GetChild(1).gameObject.SetActive(true);
+            answerUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(6).gameObject;
         }
 
-        //Debug.Log($"{GetComponent<RPCControl>().userName}의  isGameOver : {isGameOver}");
+        for (int i = 0; i < a.Length; i++)
+        {
+            if (a[i].GetComponent<RPCControl>().score == GameManager.instance.roundWinScore)
+            {
+                answerUI.transform.GetChild(1).GetComponent<Text>().text = $"축하합니다! \n{a[i].GetComponent<RPCControl>().userName}님이 승리하셨습니다";
+                answerUI.SetActive(true);
+            }
+        }
 
         // 2. isGameStart 초기화
         GameManager.instance.isGameStart = false;
@@ -384,6 +456,29 @@ public class RPCControl : NetworkBehaviour
 
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
 
+        // 제시어 UI 비활성화
+        if (wordUI == null)
+        {
+            wordUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(3).gameObject;
+        }
+        wordUI.SetActive(false);
+
+        // Draw UI 비활성화
+        if (drawUI == null)
+        {
+            drawUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(7).gameObject;
+        }
+        drawUI.SetActive(false);
+
+        // 4. 해당 라운드의 제시어 모든 클라이언트에게 공개
+        if (answerUI == null)
+        {
+            answerUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(6).gameObject;
+        }
+        answerUI.transform.GetChild(1).GetComponent<Text>().text = $"시간 초과!\n(제시어 : {GameManager.instance.currentWord})";
+        answerUI.SetActive(true);
+        GameManager.instance.ShowCurrentWord(); // 시각적으로 표현
+
         for (int i = 0; i < players.Length; i++)
         {
             if (players[i].GetComponent<CanDrawControl>().isCanDraw)
@@ -404,7 +499,7 @@ public class RPCControl : NetworkBehaviour
                 if (isGameOver == false)
                 {
                     Debug.Log("타임오버요");
-                    GameManager.instance.PushStartButton();
+                    GameManager.instance.WaitForNextRound();
                 }
 
                 break;
@@ -414,12 +509,48 @@ public class RPCControl : NetworkBehaviour
 
     #endregion
 
-    private IEnumerator wait()
+    #region [펜 색깔 변경]
+
+    [Client]
+    public void ChangeColor(Color color) // 시간이 초과됨을 알림
     {
-        yield return new WaitForSeconds(0.5f);
+        ChangeColor_Command(color);
+    }
+
+    [Command]
+    private void ChangeColor_Command(Color color) // 서버에서 커맨드
+    {
+        ChangeColor_RPC(color);
+    }
+
+    [ClientRpc]
+    private void ChangeColor_RPC(Color color) // 모든 클라이언트들에서 실행
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        foreach (GameObject player in players)
+        {
+            player.GetComponent<Mouse_Drawer>().pencolor = GetComponent<Image>().color;
+        }
+    }
+
+    #endregion
+
+    private IEnumerator Wait_co() // 클라이언트 userName 할당을 잠시 기다린 후 UI에 이름 띄우기
+    {
+        yield return new WaitForSeconds(0.25f);
 
         GameObject canvas = GameObject.FindGameObjectWithTag("Finish");
-        canvas.GetComponent<UIManager>().ChangeNameByIndex();
+
+        if (isLocalPlayer)
+        {
+            GameManager.instance.localIndex = GetComponent<RPCControl>().index;
+            canvas.GetComponent<UIManager>().ChangeNameByIndex();
+        }
+        else
+        {
+            canvas.GetComponent<UIManager>().ChangeNameByIndex();
+        }
 
         yield break;
     }

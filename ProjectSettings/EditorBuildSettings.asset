@@ -12,9 +12,9 @@ EditorBuildSettings:
     path: Assets/1.Scene/Sujin/SignUp.unity
     guid: 3c6d6d2758caf6e469a49004d553e325
   - enabled: 1
-    path: Assets/1.Scene/Jinwon/CatchMind_Main_Jinwon.unity
+    path: Assets/1.Scene/Jinwon/CatchMind_MainGame.unity
     guid: 2d46ea68245aed9449faa439a57532f7
-  - enabled: 1
-    path: Assets/1.Scene/Jinwon/CatchMind_Main_Jinwon 1.unity
+  - enabled: 0
+    path: Assets/1.Scene/Jinwon/CatchMind_Server.unity
     guid: dd38d5de4a172cf479daa480fd28cc33
   m_configObjects: {}

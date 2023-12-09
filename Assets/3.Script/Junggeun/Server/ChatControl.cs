@@ -18,19 +18,6 @@ public class ChatControl : NetworkBehaviour
 
     private List<string> chat_list = new List<string>();
     private int chatCount = 0;
-    
-    //private int mynum;
-    //private string pname;
-
-    private void Awake()
-    {
-        //GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
-        //mynum = a.Length - 1;
-        //if(isLocalPlayer)
-        //{
-        //    pname = a[mynum].GetComponent<RPCControl>().userName;
-        //}
-    }
 
     public override void OnStartAuthority()
     {
@@ -41,7 +28,6 @@ public class ChatControl : NetworkBehaviour
 
         onMessage += NewMessage;
     }
-
 
     private void NewMessage(string obj)
     {
@@ -73,31 +59,13 @@ public class ChatControl : NetworkBehaviour
         //서버에게 RPC 요청 메서드
         CMDSendMessage(inputField.text);
 
-        // 정답 판정
+        // 정답 판정 후 점수 변경 요청, 게임을 더 진행할 지는 onScoreChanged 메서드에서 점수가 완전히 바뀐 뒤에 확인
         if (inputField.text.Equals(GameManager.instance.currentWord))
         {
-            GetComponent<RPCControl>().ScoreChange(1);
-            GetComponent<RPCControl>().score += 1;
-
-            Debug.Log(GetComponent<RPCControl>().score);
-
-            if (GetComponent<RPCControl>().score == 2)
-            {
-                GetComponent<RPCControl>().GameOver();
-            }
-            else
-            {
-                GetComponent<RPCControl>().CorrectAnswer(gameObject);
-            }
+            GetComponent<RPCControl>().ScoreChange(GetComponent<RPCControl>().score + 1);
         }
 
         inputField.text = string.Empty;
-    }
-
-    [Client]
-    public void SendAnswer()
-    {
-        CMDSendMessage($"정답 (제시어 : {GameManager.instance.currentWord})");
     }
 
     [ClientCallback] //Client가 Server를 나갔을 때

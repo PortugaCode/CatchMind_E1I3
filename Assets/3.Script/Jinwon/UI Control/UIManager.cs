@@ -12,17 +12,8 @@ public class UIManager : MonoBehaviour
     [Header("Players")]
     [SerializeField] private Text[] userNames_text;
     [SerializeField] private GameObject[] userProfiles;
+    [SerializeField] private GameObject[] crownIcons;
     [SerializeField] private RawImage img;
-    //private PlayerName pname;
-
-    private int playerCount = 0;
-
-    private bool isRealFinished = false;
-
-    private void Start()
-    {
-
-    }
 
     private void Update()
     {
@@ -30,8 +21,6 @@ public class UIManager : MonoBehaviour
         {
             UpdateTimerUI();
         }
-
-        //ChangeNameByIndex();
     }
 
     private void UpdateTimerUI()
@@ -45,52 +34,55 @@ public class UIManager : MonoBehaviour
         img.texture = t;
     }
 
-    public void Changename(int index, string str)
+    public void CrownIcon()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<CanDrawControl>().isCanDraw)
+            {
+                crownIcons[i].SetActive(true);
+            }
+            else
+            {
+                crownIcons[i].SetActive(false);
+            }
+        }
+    }
+
+    public void ChangeName(int index, string str)
     {
         userNames_text[index].text = str;
         userProfiles[index].SetActive(true);
     }
 
-
-    //Update에서 돌고 있는 메서드
     public void ChangeNameByIndex()
     {
-        GameObject[] gamess = GameObject.FindGameObjectsWithTag("Player");
-
-        #region
-        /*for (int i = 0; i < gamess.Length; i++)
-        {
-            if (gamess[i].GetComponent<RPCControl>().index == -1 || gamess[i].GetComponent<RPCControl>().userName.Equals(string.Empty))
-            {
-                Debug.Log("인덱스 또는 이름이 아직 할당 안됐습니다. 리턴합니다");
-                return;
-            }
-        }*/
-
-        /*if (gamess.Length == playerCount || gamess.Length < GameManager.instance.control.Count)
-        {
-            Debug.Log($"인식된 플레이어 명 수 : {gamess.Length}입니다. 리턴합니다");
-            return;
-        }*/
-
-        //GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
-
-        //Debug.Log($"통과함, 인식된 플레이어 수 : {gamess.Length}");
-        #endregion
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
 
         int currentIndex = 0;
 
         int count = 0;
 
-        while (currentIndex < gamess.Length)
+        //Debug.Log($"isLocal : {isLocalPlayer}, local index : {GameManager.instance.localIndex}, rpc.index = {rpc.index}");
+
+        GameObject p = null;
+
+        while (currentIndex < players.Length)
         {
             count += 1;
 
-            for (int i = 0; i < gamess.Length; i++)
+            for (int i = 0; i < players.Length; i++)
             {
-                if (gamess[i].GetComponent<RPCControl>().index == currentIndex)
+                if (i == GameManager.instance.localIndex)
                 {
-                    userNames_text[currentIndex].text = gamess[i].GetComponent<RPCControl>().userName;
+                    p = players[i];
+                }
+
+                if (players[i].GetComponent<RPCControl>().index == currentIndex)
+                {
+                    userNames_text[currentIndex].text = players[i].GetComponent<RPCControl>().userName;
                     userProfiles[currentIndex].SetActive(true);
                     currentIndex += 1;
                     break;
@@ -102,5 +94,7 @@ public class UIManager : MonoBehaviour
                 return;
             }
         }
+
+        ChangeName(GameManager.instance.localIndex, $"{p.GetComponent<RPCControl>().userName} (Me)");
     }
 }
