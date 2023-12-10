@@ -11,6 +11,7 @@ public class ChatControl : NetworkBehaviour
     [SerializeField] private TMP_Text chatText;
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private GameObject canvas;
+    [SerializeField] private UIManager UImanager;
 
     public List<string> RoundText = new List<string>();
 
@@ -19,13 +20,17 @@ public class ChatControl : NetworkBehaviour
     private List<string> chat_list = new List<string>();
     private int chatCount = 0;
 
+    private void Awake()
+    {
+        UImanager = FindObjectOfType<UIManager>();
+    }
+
     public override void OnStartAuthority()
     {
         if(isLocalPlayer)
         {
             canvas.SetActive(true);
         }
-
         onMessage += NewMessage;
     }
 

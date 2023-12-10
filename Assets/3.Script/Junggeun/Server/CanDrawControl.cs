@@ -8,7 +8,7 @@ public class CanDrawControl : NetworkBehaviour
 {
     [SyncVar(hook = nameof(onCanDrawChanged))]
     public bool isCanDraw;
-
+    
     [Header("UI")]
     [SerializeField] GameObject img;
     [SerializeField] GameObject panel;

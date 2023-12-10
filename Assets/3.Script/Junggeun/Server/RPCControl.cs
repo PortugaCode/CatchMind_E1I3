@@ -40,6 +40,9 @@ public class RPCControl : NetworkBehaviour
     public bool isGameOver = true;
     //==============================
 
+    public AudioManager audioManager;
+    public UIManager uIManager;
+
     public override void OnStartAuthority() // 클라이언트 접속 시 userName 할당 (OnStartClient보다 먼저 호출됨)
     {
         NameChange(SQL_Manager.instance.info.userName);
@@ -65,8 +68,14 @@ public class RPCControl : NetworkBehaviour
     {
         score = _new;
 
+        if(audioManager == null)
+        {
+            audioManager = FindObjectOfType<AudioManager>();
+        }
+        audioManager.WinSound();
+        
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-
+        
         bool isLastRound = false;
 
         foreach (GameObject player in players)
@@ -160,7 +169,13 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void GameStart_RPC() // 모든 클라이언트들에서 실행
     {
+
         GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+
+        if (uIManager == null)
+        {
+            uIManager = FindObjectOfType<UIManager>();
+        }
 
         if (answerUI == null)
         {
@@ -170,11 +185,17 @@ public class RPCControl : NetworkBehaviour
         if (GameManager.instance.isGameStart == false) // 첫 라운드의 경우
         {
             GameManager.instance.isGameStart = true;
-
+/*            ScoreChange(0);
+            uIManager.ChangeScore(index, 0);*/
             for (int i = 0; i < a.Length; i++)
             {
                 a[i].GetComponent<RPCControl>().isGameOver = false;
                 a[i].GetComponent<RPCControl>().score = 0;
+                if(a[i].GetComponent<RPCControl>().uIManager == null)
+                {
+                    a[i].GetComponent<RPCControl>().uIManager = FindObjectOfType<UIManager>();
+                }
+                a[i].GetComponent<RPCControl>().uIManager.ChangeScore(a[i].GetComponent<RPCControl>().index, 0);
             }
 
             // 0. result UI 비활성화
@@ -279,6 +300,17 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void CorrectAnswer_RPC(GameObject pen) // 모든 클라이언트들에서 실행
     {
+        /*        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+                for(int i = 0; i < players.Length; i++)
+                {
+                    players[i].GetComponent<RPCControl>().uIManager.
+                }*/
+        if(uIManager == null)
+        {
+            uIManager = FindObjectOfType<UIManager>();
+        }
+        uIManager.ChangeScore(index, score);
+
         if (isGameOver)
         {
             return;
@@ -351,6 +383,11 @@ public class RPCControl : NetworkBehaviour
         // 1. 게임매니저에 알림 -> 진행중인 라운드 종료 (타이머 Off)
         GameManager.instance.isCorrect = true;
 
+        if (uIManager == null)
+        {
+            uIManager = FindObjectOfType<UIManager>();
+        }
+        uIManager.ChangeScore(index, score);
         // [모든 라운드 종료]
 
         if (isGameOver)

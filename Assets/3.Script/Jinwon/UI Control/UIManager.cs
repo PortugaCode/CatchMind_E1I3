@@ -15,6 +15,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject[] crownIcons;
     [SerializeField] private RawImage img;
 
+    [Header("Score")]
+    [SerializeField] private Text[] userScore;
+
     private void Update()
     {
         if (GameManager.instance.isTimerOn)
@@ -49,6 +52,11 @@ public class UIManager : MonoBehaviour
                 crownIcons[i].SetActive(false);
             }
         }
+    }
+
+    public void ChangeScore(int index, int score )
+    {
+        userScore[index].text = $"Score : {score}";
     }
 
     public void ChangeName(int index, string str)

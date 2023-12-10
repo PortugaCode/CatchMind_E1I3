@@ -8,6 +8,7 @@ TagManager:
   - DrawPanel
   - SeePanel
   - WordManager
+  - AudioManager
   layers:
   - Default
   - TransparentFX
