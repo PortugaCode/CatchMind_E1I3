@@ -85,6 +85,7 @@ public class ChatControl : NetworkBehaviour
     [ClientRpc] //이 메서드를 Client RPC로 사용 (모든 Client가 가지고 있는 Method)
     private void RPCHandleMessage(string me)
     {
+        //Debug.Log("RPCHandleMessage");
         onMessage?.Invoke($"\n{me}");
         RoundText.Add(me);
     }
