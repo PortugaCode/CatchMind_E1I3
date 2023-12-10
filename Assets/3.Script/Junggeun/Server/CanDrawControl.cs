@@ -13,13 +13,22 @@ public class CanDrawControl : NetworkBehaviour
     [SerializeField] GameObject img;
     [SerializeField] GameObject panel;
     [SerializeField] GameObject word;
+    [SerializeField] GameObject startButton;
 
     private void Start()
     {
         GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+
         if (a.Length <= 1)
         {
             ChangeCanDraw2(true);
+
+            // 스타트 버튼 활성화
+            if (startButton == null)
+            {
+                startButton = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+            }
+            startButton.SetActive(true);
         }
         else
         {
@@ -39,6 +48,10 @@ public class CanDrawControl : NetworkBehaviour
     private void onCanDrawChanged(bool _old, bool _new)
     {
         isCanDraw = _new;
+
+        // 왕관 아이콘 변경
+        GameObject canvas = GameObject.FindGameObjectWithTag("Finish");
+        canvas.GetComponent<UIManager>().CrownIcon();
     }
 
     public void ChangeCanDraw2(bool t)

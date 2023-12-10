@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class RPCControl : NetworkBehaviour
 {
-    [SyncVar (hook = nameof(onTextureChanged))]
+    [SyncVar (hook = nameof(OnTextureChanged))]
     public Texture2D white;
 
     [SerializeField] private GameObject canvas;
@@ -30,11 +30,11 @@ public class RPCControl : NetworkBehaviour
     public string currentWord;
 
     //유저의 정보====================
-    [SyncVar(hook = nameof(onNameChanged))]
+    [SyncVar(hook = nameof(OnNameChanged))]
     public string userName = string.Empty;
-    [SyncVar(hook = nameof(onIndexChanged))]
+    [SyncVar(hook = nameof(OnIndexChanged))]
     public int index = -1;
-    [SyncVar(hook = nameof(onScoreChanged))]
+    [SyncVar(hook = nameof(OnScoreChanged))]
     public int score = 0;
 
     public bool isGameOver = true;
@@ -51,17 +51,17 @@ public class RPCControl : NetworkBehaviour
     }
     
     #region [플레이어 정보]
-    private void onNameChanged(string _old, string _new)
+    private void OnNameChanged(string _old, string _new)
     {
         userName = _new;
     }
 
-    private void onIndexChanged(int _old, int _new)
+    private void OnIndexChanged(int _old, int _new)
     {
         index = _new;
     }
 
-    private void onScoreChanged(int _old, int _new)
+    private void OnScoreChanged(int _old, int _new)
     {
         score = _new;
 
@@ -77,13 +77,13 @@ public class RPCControl : NetworkBehaviour
             }
         }
 
-        if (isLastRound)
+        if (isLocalPlayer)
         {
-            GetComponent<RPCControl>().GameOver();
-        }
-        else
-        {
-            if (isLocalPlayer)
+            if (isLastRound)
+            {
+                GetComponent<RPCControl>().GameOver(gameObject);
+            }
+            else
             {
                 GetComponent<RPCControl>().CorrectAnswer(gameObject);
             }
@@ -126,7 +126,7 @@ public class RPCControl : NetworkBehaviour
     #endregion
 
     #region [텍스쳐 변경]
-    private void onTextureChanged(Texture2D _old, Texture2D _new)
+    private void OnTextureChanged(Texture2D _old, Texture2D _new)
     {
         white = _new;
     }
@@ -202,10 +202,6 @@ public class RPCControl : NetworkBehaviour
 
         // Answer UI 비활성화
         answerUI.SetActive(false);
-
-        // 왕관 아이콘 변경
-        GameObject canvas = GameObject.FindGameObjectWithTag("Finish");
-        canvas.GetComponent<UIManager>().CrownIcon();
 
         // 4. 제시어 뽑기 & Word (제시어) & 팔레트 활성화 - 그림을 그리는 사람만
         if (GetComponent<CanDrawControl>().isCanDraw)
@@ -338,20 +334,23 @@ public class RPCControl : NetworkBehaviour
     #region [게임 종료]
 
     [Client]
-    public void GameOver() // 클라이언트가 정답을 맞췄다고 알림
+    public void GameOver(GameObject pen) // 클라이언트가 정답을 맞췄다고 알림
     {
-        GameOver_Command();
+        GameOver_Command(pen);
     }
 
     [Command]
-    private void GameOver_Command() // 서버에서 커맨드
+    private void GameOver_Command(GameObject pen) // 서버에서 커맨드
     {
-        GameOver_RPC();
+        GameOver_RPC(pen);
     }
 
     [ClientRpc]
-    private void GameOver_RPC() // 모든 클라이언트들에서 실행
+    private void GameOver_RPC(GameObject pen) // 모든 클라이언트들에서 실행
     {
+        // 1. 게임매니저에 알림 -> 진행중인 라운드 종료 (타이머 Off)
+        GameManager.instance.isCorrect = true;
+
         // [모든 라운드 종료]
 
         if (isGameOver)
@@ -394,6 +393,20 @@ public class RPCControl : NetworkBehaviour
         }
         wordUI.SetActive(false);
 
+        // Draw UI 비활성화
+        if (drawUI == null)
+        {
+            drawUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(7).gameObject;
+        }
+        drawUI.SetActive(false);
+
+        // 스타트 버튼 비활성화
+        if (startButton == null)
+        {
+            startButton = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+        }
+        startButton.SetActive(false);
+
         // 1. UI에 1등 이름 띄우기
         if (answerUI == null)
         {
@@ -419,12 +432,28 @@ public class RPCControl : NetworkBehaviour
         }
         timerUI.SetActive(false);
 
-        // 4. StartButton 활성화
-        if (startButton == null)
+        // 5. 정답을 맞힌 클라이언트에게 권한 할당
+        for (int i = 0; i < a.Length; i++)
         {
-            startButton = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+            a[i].GetComponent<CanDrawControl>().ChangeCanDraw2(false);
         }
-        startButton.SetActive(true);
+        pen.GetComponent<CanDrawControl>().ChangeCanDraw2(true);
+
+        // 4.StartButton 활성화
+        for (int i = 0; i < a.Length; i++)
+        {
+            if (a[i].GetComponent<CanDrawControl>().isCanDraw)
+            {
+                if (isLocalPlayer)
+                {
+                    if (startButton == null)
+                    {
+                        startButton = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(4).gameObject;
+                    }
+                    startButton.SetActive(true);
+                }
+            }
+        }
     }
 
     #endregion
@@ -512,19 +541,19 @@ public class RPCControl : NetworkBehaviour
     #region [펜 색깔 변경]
 
     [Client]
-    public void ChangeColor(Color color) // 시간이 초과됨을 알림
+    public void ChangeColor() // 시간이 초과됨을 알림
     {
-        ChangeColor_Command(color);
+        ChangeColor_Command();
     }
 
     [Command]
-    private void ChangeColor_Command(Color color) // 서버에서 커맨드
+    private void ChangeColor_Command() // 서버에서 커맨드
     {
-        ChangeColor_RPC(color);
+        ChangeColor_RPC();
     }
 
     [ClientRpc]
-    private void ChangeColor_RPC(Color color) // 모든 클라이언트들에서 실행
+    private void ChangeColor_RPC() // 모든 클라이언트들에서 실행
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
 

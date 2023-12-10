@@ -50,9 +50,12 @@ public class GameManager : MonoBehaviour
     [Header("Word")]
     public string currentWord;
 
+    private GameObject[] games;
+
     // Status
     public bool isGameStart = false;
     public int localIndex = -1;
+    private int currentIndex = 0;
 
     public event Action OnRoundChanged;
 
@@ -92,37 +95,31 @@ public class GameManager : MonoBehaviour
 
     private void SetControll()
     {
-        if (control.Count > 0)
+        games = GameObject.FindGameObjectsWithTag("Player");
+
+        if (control.Count == 0)
         {
-            GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
-
-            //Debug.Log($"control.Count = {control.Count} , games.Length = {games.Length}");
-
-            for (int i = 0; i < games.Length; i++)
+            if (games.Length == 0)
             {
-                if (control.Count < games.Length)
-                {
-                    if (i == games.Length - 1 && !games[i].GetComponent<RPCControl>().userName.Equals(string.Empty))
-                    {
-                        control.Add(games[i]);
-                        //uiManager.GetComponent<UIManager>().Changename(i, control[i].GetComponent<RPCControl>().userName);
-                        control[i].GetComponent<RPCControl>().IndexChanged(i);
-                    }
-                }
+                return;
             }
+
+            control.Add(games[currentIndex]);
+            control[currentIndex].GetComponent<RPCControl>().IndexChanged(currentIndex);
+            currentIndex += 1;
         }
         else
         {
-            GameObject[] games = GameObject.FindGameObjectsWithTag("Player");
-
-            foreach (GameObject g in games)
+            if (games.Length <= currentIndex)
             {
-                if (!g.GetComponent<RPCControl>().userName.Equals(string.Empty))
-                {
-                    control.Add(g);
-                    //uiManager.GetComponent<UIManager>().Changename(0, control[0].GetComponent<RPCControl>().userName);
-                    control[0].GetComponent<RPCControl>().IndexChanged(0);
-                }
+                return;
+            }
+
+            if (control.Count < games.Length)
+            {
+                control.Add(games[currentIndex]);
+                control[currentIndex].GetComponent<RPCControl>().IndexChanged(currentIndex);
+                currentIndex += 1;
             }
         }
     }

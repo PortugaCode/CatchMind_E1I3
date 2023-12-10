@@ -95,6 +95,9 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        ChangeName(GameManager.instance.localIndex, $"{p.GetComponent<RPCControl>().userName} (Me)");
+        if (p != null)
+        {
+            ChangeName(GameManager.instance.localIndex, $"{p.GetComponent<RPCControl>().userName} (Me)");
+        }
     }
 }
