@@ -108,8 +108,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8009589133703305275}
   - component: {fileID: 7831227237246298667}
-  - component: {fileID: 2531045556830756308}
   - component: {fileID: 5501536008523046086}
+  - component: {fileID: 2531045556830756308}
   - component: {fileID: 1766053916949776188}
   - component: {fileID: 7596446526052224068}
   m_Layer: 0
@@ -149,35 +149,6 @@ MonoBehaviour:
   pencolor: {r: 0.103773594, g: 0.103773594, b: 0.103773594, a: 1}
   penWidth: 2
   erase: 0
---- !u!114 &2531045556830756308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6810298223638070552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f90d0322f0ac6b54f861b6c11a62d1ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  white: {fileID: 2800000, guid: 63dd4d4bfa399054c80140e6e63b3cca, type: 3}
-  canvas: {fileID: 0}
-  startButton: {fileID: 0}
-  timerUI: {fileID: 0}
-  wordUI: {fileID: 0}
-  resultUI: {fileID: 0}
-  answerUI: {fileID: 0}
-  drawUI: {fileID: 0}
-  wordManager: {fileID: 0}
-  currentWord: 
-  userName: 
-  index: -1
-  score: 0
-  isGameOver: 1
 --- !u!114 &5501536008523046086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,7 +167,39 @@ MonoBehaviour:
   chatText: {fileID: 7873231292422615905}
   inputField: {fileID: 7873231291322031109}
   canvas: {fileID: 4176572343799919933}
+  UImanager: {fileID: 0}
   RoundText: []
+--- !u!114 &2531045556830756308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810298223638070552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90d0322f0ac6b54f861b6c11a62d1ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.01
+  white: {fileID: 2800000, guid: 63dd4d4bfa399054c80140e6e63b3cca, type: 3}
+  canvas: {fileID: 0}
+  startButton: {fileID: 0}
+  timerUI: {fileID: 0}
+  wordUI: {fileID: 0}
+  resultUI: {fileID: 0}
+  answerUI: {fileID: 0}
+  drawUI: {fileID: 0}
+  wordManager: {fileID: 0}
+  currentWord: 
+  userName: 
+  index: -1
+  score: 0
+  isGameOver: 1
+  audioManager: {fileID: 0}
+  uIManager: {fileID: 0}
 --- !u!114 &1766053916949776188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,7 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.01
   isCanDraw: 0
   img: {fileID: 0}
   panel: {fileID: 0}

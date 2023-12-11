@@ -71,9 +71,21 @@ public class ChatControl : NetworkBehaviour
         }
 
         // 정답 판정 후 점수 변경 요청, 게임을 더 진행할 지는 onScoreChanged 메서드에서 점수가 완전히 바뀐 뒤에 확인
-        
         if (GameManager.instance.currentWord != string.Empty && inputField.text.Equals(GameManager.instance.currentWord))
         {
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+            foreach (GameObject player in players)
+            {
+                if (player.GetComponent<RPCControl>().isScored)
+                {
+                    inputField.text = string.Empty;
+                    return;
+                }
+            }
+
+            SetIsScored();
+            
             GetComponent<RPCControl>().ScoreChange(GetComponent<RPCControl>().score + 1);
         }
 
@@ -88,6 +100,23 @@ public class ChatControl : NetworkBehaviour
         }
 
         inputField.text = string.Empty;
+    }
+
+    [Command]
+    private void SetIsScored()
+    {
+        SetIsScored_RPC();
+    }
+
+    [ClientRpc]
+    private void SetIsScored_RPC()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        foreach (GameObject player in players)
+        {
+            player.GetComponent<RPCControl>().isScored = true;
+        }
     }
 
     [ClientCallback] //Client가 Server를 나갔을 때

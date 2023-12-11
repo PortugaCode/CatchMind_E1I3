@@ -887,7 +887,7 @@ MonoBehaviour:
   onlineScene: 
   transport: {fileID: 287122613}
   networkAddress: localhost
-  maxConnections: 100
+  maxConnections: 4
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
@@ -5202,7 +5202,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timer: 0
   roundCount: 3
-  roundTime: 30
+  roundTime: 40
   roundWinScore: 3
   isTimerOn: 0
   isCorrect: 0

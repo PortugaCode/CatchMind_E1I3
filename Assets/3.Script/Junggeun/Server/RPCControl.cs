@@ -40,6 +40,8 @@ public class RPCControl : NetworkBehaviour
     public bool isGameOver = true;
     //==============================
 
+    public bool isScored = false;
+
     public AudioManager audioManager;
     public UIManager uIManager;
 
@@ -181,6 +183,12 @@ public class RPCControl : NetworkBehaviour
         if (answerUI == null)
         {
             answerUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(6).gameObject;
+        }
+
+        // isScored 초기화
+        for (int i = 0; i < a.Length; i++)
+        {
+            a[i].GetComponent<RPCControl>().isScored = false;
         }
 
         if (GameManager.instance.isGameStart == false) // 첫 라운드의 경우
