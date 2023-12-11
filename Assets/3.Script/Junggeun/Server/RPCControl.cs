@@ -73,18 +73,16 @@ public class RPCControl : NetworkBehaviour
 
     private void OnScoreChanged(int _old, int _new)
     {
-        Debug.Log("OnScoreChanged");
-
         score = _new;
 
-        if(audioManager == null)
+        if (audioManager == null)
         {
             audioManager = FindObjectOfType<AudioManager>();
         }
         audioManager.WinSound();
-        
+
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        
+
         foreach (GameObject player in players)
         {
             if (player.GetComponent<RPCControl>().score == GameManager.instance.roundWinScore)
@@ -415,7 +413,14 @@ public class RPCControl : NetworkBehaviour
             return;
         }
 
+        GameManager.instance.currentWord = string.Empty;
+
         GameObject[] a = GameObject.FindGameObjectsWithTag("Player"); // 클라이언트들 찾아놓기
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            a[i].GetComponent<RPCControl>().isScored = false;
+        }
 
         // 모든 클라이언트들의 isGameOver true로 바꾸기
         for (int i = 0; i < a.Length; i++)
