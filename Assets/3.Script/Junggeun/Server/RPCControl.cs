@@ -52,7 +52,12 @@ public class RPCControl : NetworkBehaviour
     {
         StartCoroutine(Wait_co());
     }
-    
+
+    public override void OnStartLocalPlayer()
+    {
+        GetComponent<CanDrawControl>().CanDrawInit();
+    }
+
     #region [플레이어 정보]
     private void OnNameChanged(string _old, string _new)
     {
@@ -169,7 +174,6 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void GameStart_RPC() // 모든 클라이언트들에서 실행
     {
-
         GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
 
         if (uIManager == null)

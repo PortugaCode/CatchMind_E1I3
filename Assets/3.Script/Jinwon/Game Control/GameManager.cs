@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviour
 
     public event Action OnRoundChanged;
 
+    private CanDrawControl temp;
+
     [Header("UserInfo")]
     public List<string> userinfo = new List<string>();
 
@@ -84,13 +86,38 @@ public class GameManager : MonoBehaviour
 
     private void Sync()
     {
-        foreach (GameObject g in control)
+        if (control == null)
         {
-            if (g.GetComponent<CanDrawControl>().isCanDraw) //나중에 여기다가 누가 권한을 가지고 있는가 추가
+            return;
+        }
+
+        if (control.Count > 0)
+        {
+            foreach (GameObject g in control)
             {
-                uiManager.GetComponent<UIManager>().SyncTexture(g.GetComponent<RPCControl>().white);
+                /*if (!g.TryGetComponent(out temp))
+                {
+                    return;
+                }*/
+
+                if (g == null)
+                {
+                    return;
+                }
+
+                if (g.GetComponent<CanDrawControl>() == null)
+                {
+                    return;
+                }
+
+                if (g.GetComponent<CanDrawControl>().isCanDraw) //나중에 여기다가 누가 권한을 가지고 있는가 추가
+                {
+                    uiManager.GetComponent<UIManager>().SyncTexture(g.GetComponent<RPCControl>().white);
+                }
             }
         }
+
+        
     }
 
     private void SetControll()

@@ -23,10 +23,11 @@ public class WordManager : MonoBehaviour
 
     private void Awake()
     {
-        path = Path.Combine(Application.dataPath + "/Resources/Word/", "words.json");
+        path = Path.Combine(Application.dataPath + "/Resources/", "words.json");
 
         if (!File.Exists(path)) // json파일이 없는 경우 json파일 생성
         {
+            Debug.Log("words.json 파일이 없음");
             SetDictionary();
             SaveJsonFile();
         }
