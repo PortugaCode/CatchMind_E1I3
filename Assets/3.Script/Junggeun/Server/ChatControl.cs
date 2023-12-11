@@ -80,42 +80,21 @@ public class ChatControl : NetworkBehaviour
                 if (player.GetComponent<RPCControl>().isScored)
                 {
                     inputField.text = string.Empty;
+                    //inputField.text = "isScored가 true라서 리턴됨";
                     return;
                 }
             }
 
-            SetIsScored();
+            //SetIsScored();
             
             GetComponent<RPCControl>().ScoreChange(GetComponent<RPCControl>().score + 1);
+            //inputField.text = "정답임";
+            inputField.text = string.Empty;
         }
-
-        if (GameManager.instance.currentWord != string.Empty)
+        else
         {
-            Debug.Log("currentWord 비어있음");
-        }
-
-        if (!inputField.text.Contains(GameManager.instance.currentWord))
-        {
-            Debug.Log("포함 안하고 있음");
-        }
-
-        inputField.text = string.Empty;
-    }
-
-    [Command]
-    private void SetIsScored()
-    {
-        SetIsScored_RPC();
-    }
-
-    [ClientRpc]
-    private void SetIsScored_RPC()
-    {
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-
-        foreach (GameObject player in players)
-        {
-            player.GetComponent<RPCControl>().isScored = true;
+            //inputField.text = "정답이 아님";
+            inputField.text = string.Empty;
         }
     }
 

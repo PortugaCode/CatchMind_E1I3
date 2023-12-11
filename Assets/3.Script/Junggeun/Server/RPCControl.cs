@@ -99,7 +99,25 @@ public class RPCControl : NetworkBehaviour
 
         if (isLocalPlayer)
         {
+            SetIsScored();
             GetComponent<RPCControl>().CorrectAnswer(gameObject);
+        }
+    }
+
+    [Command]
+    public void SetIsScored()
+    {
+        SetIsScored_RPC();
+    }
+
+    [ClientRpc]
+    private void SetIsScored_RPC()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        foreach (GameObject player in players)
+        {
+            player.GetComponent<RPCControl>().isScored = true;
         }
     }
 
