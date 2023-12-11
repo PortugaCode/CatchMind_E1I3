@@ -71,6 +71,8 @@ public class RPCControl : NetworkBehaviour
 
     private void OnScoreChanged(int _old, int _new)
     {
+        Debug.Log("OnScoreChanged");
+
         score = _new;
 
         if(audioManager == null)
@@ -81,26 +83,21 @@ public class RPCControl : NetworkBehaviour
         
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         
-        bool isLastRound = false;
-
         foreach (GameObject player in players)
         {
             if (player.GetComponent<RPCControl>().score == GameManager.instance.roundWinScore)
             {
-                isLastRound = true;
+                if (isLocalPlayer)
+                {
+                    GetComponent<RPCControl>().GameOver(gameObject);
+                    return;
+                }
             }
         }
 
         if (isLocalPlayer)
         {
-            if (isLastRound)
-            {
-                GetComponent<RPCControl>().GameOver(gameObject);
-            }
-            else
-            {
-                GetComponent<RPCControl>().CorrectAnswer(gameObject);
-            }
+            GetComponent<RPCControl>().CorrectAnswer(gameObject);
         }
     }
 
@@ -304,12 +301,8 @@ public class RPCControl : NetworkBehaviour
     [ClientRpc]
     private void CorrectAnswer_RPC(GameObject pen) // 모든 클라이언트들에서 실행
     {
-        /*        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-                for(int i = 0; i < players.Length; i++)
-                {
-                    players[i].GetComponent<RPCControl>().uIManager.
-                }*/
-        if(uIManager == null)
+        // 3. 점수 UI 업데이트
+        if (uIManager == null)
         {
             uIManager = FindObjectOfType<UIManager>();
         }
@@ -338,9 +331,6 @@ public class RPCControl : NetworkBehaviour
             drawUI = GameObject.FindGameObjectWithTag("Finish").transform.GetChild(7).gameObject;
         }
         drawUI.SetActive(false);
-
-        // 3. 점수 UI 업데이트
-        // Canvas의 Users의 자기 위치의 scoreText 업데이트?...
 
         // 4. 해당 라운드의 제시어 모든 클라이언트에게 공개
         if (answerUI == null)
@@ -605,6 +595,24 @@ public class RPCControl : NetworkBehaviour
     }
 
     #endregion
+
+    /*[Client]
+    public void PrintCurrentWord()
+    {
+        PrintCurrentWord_Command();
+    }
+
+    [Command]
+    private void PrintCurrentWord_Command()
+    {
+        PrintCurrentWord_RPC();
+    }
+
+    [ClientRpc]
+    private void PrintCurrentWord_RPC()
+    {
+
+    }*/
 
     private IEnumerator Wait_co() // 클라이언트 userName 할당을 잠시 기다린 후 UI에 이름 띄우기
     {
